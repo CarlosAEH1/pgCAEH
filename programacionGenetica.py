@@ -241,11 +241,6 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 	entradasFuncion=[[0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 0, 1], [0, 1, 1, 0], [0, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 1], [1, 0, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [1, 1, 0, 1], [1, 1, 1, 0], [1, 1, 1, 1]]
 	salidasFuncion=[1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1]
 	#print('\n\nEvaluación')
-	"""contenido=open(nombre+'.txt')
-	coordenadas=[]
-	for linea in contenido: coordenadas+=[linea.rstrip().split('\t')]																						#Obtiene coordendas de archivo TXT
-	print('\nCoordenadas')
-	for i in range(len(coordenadas)): print(coordenadas[i])"""
 	pesos=codificarCromosomas(cromosomas, 4, numeros)
 	resultados=[]
 	errores=[]
@@ -280,13 +275,7 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud
 
 def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior):
-	resultadoFuncion=[1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1]
 	#print('\n\nEvaluación')
-	"""contenido=open(nombre+'.txt')
-	coordenadas=[]
-	for linea in contenido: coordenadas+=[linea.rstrip().split('\t')]												#Obtiene coordendas de archivo TXT
-	print('\nCoordenadas')
-	for i in range(len(coordenadas)): print(coordenadas[i])"""
 	pesos=codificarCromosomas(cromosomas, 9, numeros)
 	resultados=[]
 	errores=[]
@@ -314,17 +303,6 @@ def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, nume
 			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]											#Calcula error absoluto
 			#print('Errores de cromosoma: '+str(erroresCromosoma))
 			x=round(x+0.1, 1)
-		"""k=random.random()
-		#print('-Aleatorio de cromosoma ', i+1, ': ', str(k))
-		for j in range(len(coordenadas)):
-			coordenada=coordenadas[j]															#Selecciona coordenada
-			nodos=pesosCromosoma[:]
-			resultado=evaluarArbol(nodos, float(coordenada[0]), k)												#Evalua cromosoma
-			resultadosCromosoma+=[resultado]
-			erroresCromosoma+=[abs(float(coordenada[1])-resultado)]"""											#Calcula error absoluto
-		"""if float('inf') in erroresCromosoma:
-			posicion=erroresCromosoma.index(float('inf'))
-			del erroresCromosoma[posicion]"""
 		resultados+=[resultadosCromosoma]
 		errores+=[erroresCromosoma]																#Calcula utilidad de cromosoma
 		utilidades+=[sum(erroresCromosoma)]
