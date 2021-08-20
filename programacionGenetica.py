@@ -173,68 +173,68 @@ def evaluarArbolBooleano(nodos, entrada, nivel, profundidad):					#Recorre cromo
 		del entrada[0]
 	return salida
 
-def evaluarArbolAlgebraico(nodos, entrada, nivel, profundidad):					#Recorre cromosoma como arbol en preorden
+def evaluarArbolAlgebraico(nodos, k, x, nivel, profundidad):					#Recorre cromosoma como arbol en preorden
 	#print('Nodos: ', nodos)
 	#print('Nivel: ', nivel)
 	#print('Profundidad: ', profundidad)
-	if(nivel<profundidad):									#Opera nodo
-		if(nodos[0]==0):
+	if(nivel<profundidad):									#Verifica nivel de profundidad
+		if(nodos[0]==0):								#Verifica primer operador de árbol
+			del nodos[0]								#Elimina primer operador de árbol
+			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)	#Evalua resto de árbol para obtener primer operando, aumentando de nivel.
+			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)	#Evalua resto de árbol para obtener segundo operando, aumentando de nivel.
+			resultado=operando1+operando2						#Opera suma
+			nivel-=1								#Retorno de nivel
+		elif(nodos[0]==1):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando1=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			operando2=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			resultado=operando1+operando2
-			nivel-=1
-		elif(nodos[0]==1):
-			del nodos[0]
-			operando1=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			operando2=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=operando1-operando2
 			nivel-=1
-		elif(nodos[0]==2):
+		elif(nodos[0]==2):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando1=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			operando2=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=operando1*operando2
 			nivel-=1
-		elif(nodos[0]==3):
+		elif(nodos[0]==3):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando1=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			operando2=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			if(operando2==0): resultado=operando1
 			else: resultado=operando1/operando2
 			nivel-=1
-		elif(nodos[0]==4):
+		elif(nodos[0]==4):								#Verifica primer operador de árbol
+			del nodos[0]								#Elimina primer operador de árbol
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)	#Evalua resto de árbol para obtener operador, aumentando de nivel.
+			resultado=math.sin(operando)						#Opera seno
+			nivel-=1								#Retorno de nivel
+		elif(nodos[0]==5):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
-			resultado=math.sin(operando)
-			nivel-=1
-		elif(nodos[0]==5):
-			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=math.cos(operando)
 			nivel-=1
-		elif(nodos[0]==6):
+		elif(nodos[0]==6):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=math.tan(operando)
 			nivel-=1
-		elif(nodos[0]==7):
+		elif(nodos[0]==7):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			if(operando<0): resultado=operando
 			else: resultado=math.sqrt(operando)
 			nivel-=1
-		elif(nodos[0]==8):
+		elif(nodos[0]==8):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, entrada, nivel+1, profundidad)
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			if(operando<=0): resultado=operando
 			else: resultado=math.log(operando)
 			nivel-=1
 	else:
-		del nodos[0]									#Agrega nodo varable o contante aleatoriamente
-		resultado=entrada[0]
+		if(nodos[0]%2==0): resultado=k							#Si primer nodo de arbol es par, se asigna constante a terminal.
+		else: resultado=x								#Si primer nodo de arbol es impar, se asigna variable a terminal.
+		del nodos[0]									#Agrega nodo constante o variable
 		#print('Entrada: ', resultado)
-		del entrada[0]
 	return resultado
 
 def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior):
@@ -280,39 +280,33 @@ def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, nume
 	resultados=[]
 	errores=[]
 	utilidades=[]
-	for i in range(len(pesos)):
-		pesosCromosoma=pesos[i]
+	for i in range(len(pesos)):															#Recorre cada modelo de la población
+		pesosCromosoma=pesos[i]															#Modelo a evaluar
 		resultadosCromosoma=[]
 		erroresCromosoma=[]
-		k=random.random()
-		#print('\nAleatorio de cromosoma ', i+1, ': ', k)
-		operandos=[]
-		for j in range(2**profundidad): operandos+=[random.choice((0, 1))]											#Prepara lista de terminales
-		x=inferiorX
-		while(x<=superiorX):																	#Recorre rango de variable independiente
-			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45													#Evalua funcion
+		k=random.random()															#Genera constante aleatoria
+		#print('\nConstante de cromosoma ', i+1, ': ', k)
+		x=inferiorX																#Limite inferior de variable independiente
+		while(x<=superiorX):															#Recorre rango de variable independiente															#Recorre rango de variable independiente
+			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45											#Evalua funcion
 			#print('\n-Resultado de funcion: '+str(resultadoFuncion))
-			nodos=pesosCromosoma[:]
-			for j in range(2**profundidad):															#Genera lista de terminales a evaluar
-				if(operandos[j]==0): operandos[j]=x
-				else: operandos[j]=k
-			entrada=operandos[:]
-			resultadoCromosoma=evaluarArbolAlgebraico(nodos, entrada, 0, profundidad)									#Evalua cromosoma
+			nodos=pesosCromosoma[:]														#Copia modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, k, x, 0, profundidad)								#Evalua modelo
 			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
 			resultadosCromosoma+=[resultadoCromosoma]
-			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]											#Calcula error absoluto
+			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]									#Calcula error absoluto
 			#print('Errores de cromosoma: '+str(erroresCromosoma))
-			x=round(x+0.1, 1)
-		resultados+=[resultadosCromosoma]
-		errores+=[erroresCromosoma]																#Calcula utilidad de cromosoma
-		utilidades+=[sum(erroresCromosoma)]
+			x=round(x+0.1, 1)														#Incrementa variable independiente
+		resultados+=[resultadosCromosoma]													#Resultados de modelos
+		errores+=[erroresCromosoma]														#Errores de modelos
+		utilidades+=[sum(erroresCromosoma)]													#Utilidades de modelos
 	#print('\nResultados de cromosomas: ')
 	#for i in range(len(resultados)): print('-Cromosoma ', i+1, ': ', resultados[i])
 	#print('\nErrores de cromosomas: ')
 	#for i in range(len(errores)): print('-Cromosoma ', i+1, ': ', errores[i])
 	#print('\nError de cromosomas: ')
 	#for i in range(len(utilidades)): print('-Cromosoma ', i+1, ': ', utilidades[i])
-	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)	#Implementa elitismo
+	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)		#Implementa elitismo
 	aptitud=sum(utilidades)
 	#print('\nUtilidad de la poblacion: ', aptitud)
 	aptitudes=[]
