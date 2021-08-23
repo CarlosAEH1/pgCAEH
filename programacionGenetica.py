@@ -1,6 +1,13 @@
 #Algoritmo que resuelve problemas por tecnica de programacion genetica
 #CarlosAEH1
 
+import math
+import random
+from math import ceil
+import numpy as np
+import matplotlib.pyplot as plt
+import openpyxl
+
 def mostrarCromosomas(cromosomas):
 	print('\n\nPoblacion\n')
 	for i in range(len(cromosomas)): print('Cromosoma ', i+1, ': '+str(cromosomas[i]))
@@ -138,39 +145,39 @@ def codificarCromosomas(cromosomas, limite, numeros):
 	#for i in range(len(pesos)): print('-Cromosoma ', i+1, ': ', pesos[i])
 	return pesos
 
-def evaluarArbolBooleano(nodos, entrada, nivel, profundidad):					#Recorre cromosoma como arbol en preorden
+def evaluarArbolBooleano(nodos, entrada, nivel, profundidad):
 	#print('Nodos: ', nodos)
 	#print('Nivel: ', nivel)
 	#print('Profundidad: ', profundidad)
 	if(nivel<profundidad):									#Opera nodo
-		if(nodos[0]==0):
-			del nodos[0]
-			operando1=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
-			operando2=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
-			salida=(operando1 and operando2)
-			nivel-=1
-		elif(nodos[0]==1):
+		if(nodos[0]==0):								#Verifica primer operador de árbol (and)
+			del nodos[0]								#Elimina primer operador de árbol
+			operando1=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)	#Evalua resto de árbol para obtener primer operando, aumentando el nivel de profundidad.
+			operando2=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)	#Evalua resto de árbol para obtener segundo operando, aumentando el nivel de profundidad.
+			salida=(operando1 and operando2)					#Opera and
+			nivel-=1								#Retorno de nivel
+		elif(nodos[0]==1):								#Verifica primer operador de árbol (or)
 			del nodos[0]
 			operando1=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
 			operando2=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
 			salida=(operando1 or operando2)
 			nivel-=1
-		elif(nodos[0]==2):
-			del nodos[0]
-			operando=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
-			salida=not(operando)
-			nivel-=1
-		elif(nodos[0]==3):
+		elif(nodos[0]==2):								#Verifica primer operador de árbol (not)
+			del nodos[0]								#Elimina primer operador de árbol
+			operando=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)	#Evalua resto de árbol para obtener operando, aumentando el nivel de profundidad.
+			salida=not(operando)							#Opera not
+			nivel-=1								#Retorno de nivel
+		elif(nodos[0]==3):								#Verifica primer operador de árbol (xor)
 			del nodos[0]
 			operando1=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
 			operando2=evaluarArbolBooleano(nodos, entrada, nivel+1, profundidad)
 			salida=(operando1 and not(operando2))or(not(operando1) and operando2)
 			nivel-=1
 	else:
-		del nodos[0]									#Agrega nodo varable o contante aleatoriamente
-		salida=bool(entrada[0])
+		del nodos[0]									#Elimina primer nodo de arbol
+		salida=bool(entrada[0])								#Asigna variable a terminal
 		#print('Entrada: ', salida)
-		del entrada[0]
+		del entrada[0]									#Elimina primer variable de entrada
 	return salida
 
 def evaluarArbolAlgebraico(nodos, k, x, nivel, profundidad):					#Recorre cromosoma como arbol en preorden
@@ -233,7 +240,7 @@ def evaluarArbolAlgebraico(nodos, k, x, nivel, profundidad):					#Recorre cromos
 	else:
 		if(nodos[0]%2==0): resultado=k							#Si primer nodo de arbol es par, se asigna constante a terminal.
 		else: resultado=x								#Si primer nodo de arbol es impar, se asigna variable a terminal.
-		del nodos[0]									#Agrega nodo constante o variable
+		del nodos[0]									#Elimina primer nodo de arbol
 		#print('Entrada: ', resultado)
 	return resultado
 
@@ -245,38 +252,44 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 	resultados=[]
 	errores=[]
 	utilidades=[]
-	for i in range(len(pesos)):
-		pesosCromosoma=pesos[i]
+	for i in range(len(pesos)):																												#Recorre cada modelo de la poblacion
+		pesosCromosoma=pesos[i]																												#Modelo a evaluar
 		resultadosCromosoma=[]
 		erroresCromosoma=[]
-		for j in range(len(entradasFuncion)):
-			nodos=pesosCromosoma[:]
-			numero=entradasFuncion[j]
-			entrada=numero[:]
-			salida=evaluarArbolBooleano(nodos, entrada, 0, profundidad)																					#Evalua cromosoma
+		for j in range(len(entradasFuncion)):																										#Recorre conunto de entrada
+			nodos=pesosCromosoma[:]																											#Copia modelo
+			numero=entradasFuncion[j]																										#Entrada
+			entrada=numero[:]																											#Copia entrada
+			entrada+=entrada																											#Duplica entrada
+			salida=evaluarArbolBooleano(nodos, entrada, 0, profundidad)																						#Evalua modelo
 			#print('Resultado de cromosoma: '+str(salida))
-			resultadosCromosoma+=[int(salida)]
-			erroresCromosoma+=[abs(salidasFuncion[j]-int(salida))]																						#Calcula error absoluto
+			resultadosCromosoma+=[int(salida)]																									#Resultados de modelo
+			erroresCromosoma+=[abs(salidasFuncion[j]-int(salida))]																							#Calcula error absoluto
 			#print('Errores de cromosoma: '+str(erroresCromosoma))
-		resultados+=[resultadosCromosoma]
-		errores+=[erroresCromosoma]																										#Calcula utilidad de cromosoma
-		utilidades+=[sum(erroresCromosoma)]
+		resultados+=[resultadosCromosoma]																										#Resultados de modelos
+		errores+=[erroresCromosoma]																											#Errores de modelos
+		utilidades+=[sum(erroresCromosoma)]																										#Utilidad de modelos
 	#print('\nResultados de cromosomas: ')
 	#for i in range(len(resultados)): print('-Cromosoma ', i+1, ': ', resultados[i])
 	#print('\nErrores de cromosomas: ')
 	#for i in range(len(errores)): print('-Cromosoma ', i+1, ': ', errores[i])
 	#print('\nError de cromosomas: ')
 	#for i in range(len(utilidades)): print('-Cromosoma ', i+1, ': ', utilidades[i])
-	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)	#Implementa elitismo
+	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)															#Implementa elitismo
 	aptitud=sum(utilidades)
 	#print('\nUtilidad de la poblacion: ', aptitud)
 	aptitudes=[]
-	for i in range(len(utilidades)): aptitudes+=[utilidades[i]/aptitud]
+	if(aptitud!=0):
+		for i in range(len(utilidades)): aptitudes+=[utilidades[i]/aptitud]
+	else: aptitudes=utilidades
 	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud
 
-def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior):
+def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
 	#print('\n\nEvaluación')
 	pesos=codificarCromosomas(cromosomas, 9, numeros)
+	if(constante==None): constante=random.randrange(10)												#Genera constante aleatoria
+	else: constante=ceil((constante+random.randrange(constante))/2)											#Actualiza constante
+	#print('\nConstante: ', k)
 	resultados=[]
 	errores=[]
 	utilidades=[]
@@ -284,14 +297,12 @@ def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, nume
 		pesosCromosoma=pesos[i]															#Modelo a evaluar
 		resultadosCromosoma=[]
 		erroresCromosoma=[]
-		k=random.random()															#Genera constante aleatoria
-		#print('\nConstante de cromosoma ', i+1, ': ', k)
 		x=inferiorX																#Limite inferior de variable independiente
 		while(x<=superiorX):															#Recorre rango de variable independiente															#Recorre rango de variable independiente
 			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45											#Evalua funcion
 			#print('\n-Resultado de funcion: '+str(resultadoFuncion))
 			nodos=pesosCromosoma[:]														#Copia modelo
-			resultadoCromosoma=evaluarArbolAlgebraico(nodos, k, x, 0, profundidad)								#Evalua modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, x, 0, profundidad)								#Evalua modelo
 			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
 			resultadosCromosoma+=[resultadoCromosoma]
 			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]									#Calcula error absoluto
@@ -310,8 +321,10 @@ def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, nume
 	aptitud=sum(utilidades)
 	#print('\nUtilidad de la poblacion: ', aptitud)
 	aptitudes=[]
-	for i in range(len(utilidades)): aptitudes+=[utilidades[i]/aptitud]
-	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud
+	if(aptitud!=0):
+		for i in range(len(utilidades)): aptitudes+=[utilidades[i]/aptitud]
+	else: aptitud=utilidades
+	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud, constante
 
 def generarPoblacion(tamanoCromosomas, tamanoPoblacion):
 	cromosomas=[]
@@ -329,11 +342,11 @@ numeros8=[[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 
 numeros16=[[0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 0, 1], [0, 1, 1, 0], [0, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 1], [1, 0, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [1, 1, 0, 1], [1, 1, 1, 0], [1, 1, 1, 1]]	#Numeros binarios
 
 cromosomas=generarPoblacion(tamanoCromosoma, tamanoPoblacion)
-aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, None, None)
+aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, None, None, None)
 #aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarParidad(cromosomas, profundidad, numeros4, opcionSeleccion, None, None)
 for j in range(generaciones):
 	cromosomas=seleccionar(cromosomas, aptitudes, opcionSeleccion)
 	cromosomas=cruzar(cromosomas, probabilidadCruza)
 	cromosomas=mutar(cromosomas, probabilidadMutacion)
-	aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, cromosomaElitista, utilidadElitista)
+	aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, cromosomaElitista, utilidadElitista, constante)
 	#aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarParidad(cromosomas, profundidad, numeros4, opcionSeleccion, cromosomaElitista, utilidadElitista)
