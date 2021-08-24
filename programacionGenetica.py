@@ -284,8 +284,51 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 	else: aptitudes=utilidades
 	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud
 
-def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
-	#print('\n\nEvaluación')
+def evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
+	#print('\n\nEvaluación de coordenadas')
+	pesos=codificarCromosomas(cromosomas, 9, numeros)
+	if(constante==None): constante=random.randrange(10)												#Genera constante aleatoria
+	else: constante=ceil((constante+random.randrange(constante))/2)											#Actualiza constante
+	#print('\nConstante: ', constante)
+	resultados=[]
+	errores=[]
+	utilidades=[]
+	for i in range(len(pesos)):															#Recorre cada modelo de la población
+		pesosCromosoma=pesos[i]															#Modelo a evaluar
+		resultadosCromosoma=[]
+		erroresCromosoma=[]
+		for j in range(len(coordenadas)):													#Recorre coordenadas
+			coordenada=coordenadas[j]													#Coordenada (x, y)
+			#print('-('+str(coordenada[0])+', '+str(coordenada[1])+')')
+			nodos=pesosCromosoma[:]														#Copia modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, float(coordenada[0]), 0, profundidad)				#Evalua modelo
+			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
+			resultadosCromosoma+=[resultadoCromosoma]
+			erroresCromosoma+=[abs(float(coordenada[1])-resultadoCromosoma)]								#Calcula error absoluto
+			#print('Errores de cromosoma: '+str(erroresCromosoma))
+		if float('inf') in erroresCromosoma:													#Evita valores infinitos
+			posicion=erroresCromosoma.index(float('inf'))
+			del erroresCromosoma[posicion]
+		resultados+=[resultadosCromosoma]													#Resultados de modelos
+		errores+=[erroresCromosoma]														#Errores de modelos
+		utilidades+=[sum(erroresCromosoma)]													#Utilidades de modelos
+	#print('\nResultados de cromosomas: ')
+	#for i in range(len(resultados)): print('-Cromosoma ', i+1, ': ', resultados[i])
+	#print('\nErrores de cromosomas: ')
+	#for i in range(len(errores)): print('-Cromosoma ', i+1, ': ', errores[i])
+	#print('\nError de cromosomas: ')
+	#for i in range(len(utilidades)): print('-Cromosoma ', i+1, ': ', utilidades[i])
+	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)		#Implementa elitismo
+	aptitud=sum(utilidades)
+	#print('\nUtilidad de la poblacion: ', aptitud)
+	aptitudes=[]
+	if(aptitud!=0):
+		for i in range(len(utilidades)): aptitudes+=[utilidades[i]/aptitud]
+	else: aptitud=utilidades
+	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud, constante
+
+def evaluarRegresionExpresion(cromosomas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
+	#print('\n\nEvaluación de expresion')
 	pesos=codificarCromosomas(cromosomas, 9, numeros)
 	if(constante==None): constante=random.randrange(10)												#Genera constante aleatoria
 	else: constante=ceil((constante+random.randrange(constante))/2)											#Actualiza constante
@@ -302,7 +345,7 @@ def evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, nombre, nume
 			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45											#Evalua funcion
 			#print('\n-Resultado de funcion: '+str(resultadoFuncion))
 			nodos=pesosCromosoma[:]														#Copia modelo
-			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, x, 0, profundidad)								#Evalua modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, x, 0, profundidad)							#Evalua modelo
 			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
 			resultadosCromosoma+=[resultadoCromosoma]
 			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]									#Calcula error absoluto
@@ -337,16 +380,31 @@ def generarPoblacion(tamanoCromosomas, tamanoPoblacion):
 		return cromosomas
 	else: print('\nError, introduciste un tamaño de población de cromosomas menor o igual a 1.')
 
+def leerCoordenadas(nombre):
+	contenido=open(nombre+'.txt')
+	coordenadas=[]
+	for linea in contenido: coordenadas+=[linea.rstrip().split('\t')]	#Obtiene coordendas de archivo TXT
+	#print('\nCoordenadas')
+	#for i in range(len(coordenadas)): print(str(coordenadas[i]))
+	coordenada=coordenadas[0]						#Coordenada (x, y)
+	inferiorX=coordenada[0]
+	coordenada=coordenadas[len(coordenadas)-1]				#Limite inferior de x
+	superiorX=coordenada[0]							#Limite superior de x
+	return coordenadas, inferiorX, superiorX
+
 numeros4=[[0, 0], [0, 1], [1, 0], [1, 1]]
 numeros8=[[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]]
 numeros16=[[0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 0, 1], [0, 1, 1, 0], [0, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 1], [1, 0, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [1, 1, 0, 1], [1, 1, 1, 0], [1, 1, 1, 1]]	#Numeros binarios
 
+#coordenadas, inferiorX, superiorX=leerCoordenadas(nombre)
 cromosomas=generarPoblacion(tamanoCromosoma, tamanoPoblacion)
-aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, None, None, None)
+aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresionExpresion(cromosomas, inferiorX, superiorX, profundidad, numeros16, opcionSeleccion, None, None, None)
+#aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, profundidad, numeros16, opcionSeleccion, None, None, None)
 #aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarParidad(cromosomas, profundidad, numeros4, opcionSeleccion, None, None)
 for j in range(generaciones):
 	cromosomas=seleccionar(cromosomas, aptitudes, opcionSeleccion)
 	cromosomas=cruzar(cromosomas, probabilidadCruza)
 	cromosomas=mutar(cromosomas, probabilidadMutacion)
-	aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresion(cromosomas, inferiorX, superiorX, profundidad, None, numeros16, opcionSeleccion, cromosomaElitista, utilidadElitista, constante)
+	aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresionExpresion(cromosomas, inferiorX, superiorX, profundidad, numeros16, opcionSeleccion, cromosomaElitista, utilidadElitista, constante)
+	#aptitudes, cromosomaElitista, utilidadElitista, aptitud, constante=evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, profundidad, numeros16, opcionSeleccion, cromosomaElitista, utilidadElitista, constante)
 	#aptitudes, cromosomaElitista, utilidadElitista, aptitud=evaluarParidad(cromosomas, profundidad, numeros4, opcionSeleccion, cromosomaElitista, utilidadElitista)
