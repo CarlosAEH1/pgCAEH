@@ -193,49 +193,53 @@ def evaluarArbolAlgebraico(nodos, k, x, nivel, profundidad):					#Recorre cromos
 			nivel-=1								#Retorno de nivel
 		elif(nodos[0]==1):								#Verifica primer operador de árbol
 			del nodos[0]
-			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
-			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
-			resultado=operando1-operando2
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			resultado=-operando
 			nivel-=1
 		elif(nodos[0]==2):								#Verifica primer operador de árbol
 			del nodos[0]
 			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
-			resultado=operando1*operando2
+			resultado=operando1-operando2
 			nivel-=1
 		elif(nodos[0]==3):								#Verifica primer operador de árbol
+			del nodos[0]
+			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			resultado=operando1*operando2
+			nivel-=1
+		elif(nodos[0]==4):								#Verifica primer operador de árbol
 			del nodos[0]
 			operando1=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			operando2=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			if(operando2==0): resultado=operando1
 			else: resultado=operando1/operando2
 			nivel-=1
-		elif(nodos[0]==4):								#Verifica primer operador de árbol
+		elif(nodos[0]==5):								#Verifica primer operador de árbol
 			del nodos[0]								#Elimina primer operador de árbol
 			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)	#Evalua resto de árbol para obtener operador, aumentando de nivel.
 			resultado=math.sin(operando)						#Opera seno
 			nivel-=1								#Retorno de nivel
-		elif(nodos[0]==5):								#Verifica primer operador de árbol
+		elif(nodos[0]==6):								#Verifica primer operador de árbol
 			del nodos[0]
 			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=math.cos(operando)
 			nivel-=1
-		elif(nodos[0]==6):								#Verifica primer operador de árbol
+		elif(nodos[0]==7):								#Verifica primer operador de árbol
 			del nodos[0]
 			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
 			resultado=math.tan(operando)
 			nivel-=1
-		elif(nodos[0]==7):								#Verifica primer operador de árbol
-			del nodos[0]
-			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
-			if(operando<0): resultado=operando
-			else: resultado=math.sqrt(operando)
-			nivel-=1
 		elif(nodos[0]==8):								#Verifica primer operador de árbol
 			del nodos[0]
 			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
-			if(operando<=0): resultado=operando
-			else: resultado=math.log(operando)
+			resultado=math.sqrt(abs(operando))
+			nivel-=1
+		elif(nodos[0]==9):								#Verifica primer operador de árbol
+			del nodos[0]
+			operando=evaluarArbolAlgebraico(nodos, k, x, nivel+1, profundidad)
+			if(operando==0): resultado=operando
+			else: resultado=math.log(abs(operando))
 			nivel-=1
 	else:
 		if(nodos[0]%2==0): resultado=k							#Si primer nodo de arbol es par, se asigna constante a terminal.
@@ -286,39 +290,40 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 
 def evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
 	#print('\n\nEvaluación de coordenadas')
-	pesos=codificarCromosomas(cromosomas, 9, numeros)
-	if(constante==None): constante=random.randrange(10)												#Genera constante aleatoria
-	else: constante=ceil((constante+random.randrange(constante))/2)											#Actualiza constante
+	pesos=codificarCromosomas(cromosomas, 10, numeros)
+	if(constante==None): constante=random.randrange(10)																	#Genera constante aleatoria
+	else:																					#Actualiza constante
+		if(constante!=0): constante=ceil((constante+random.randrange(constante))/2)
 	#print('\nConstante: ', constante)
 	resultados=[]
 	errores=[]
 	utilidades=[]
-	for i in range(len(pesos)):															#Recorre cada modelo de la población
-		pesosCromosoma=pesos[i]															#Modelo a evaluar
+	for i in range(len(pesos)):																		#Recorre cada modelo de la población
+		pesosCromosoma=pesos[i]																		#Modelo a evaluar
 		resultadosCromosoma=[]
 		erroresCromosoma=[]
-		for j in range(len(coordenadas)):													#Recorre coordenadas
-			coordenada=coordenadas[j]													#Coordenada (x, y)
+		for j in range(len(coordenadas)):																#Recorre coordenadas
+			coordenada=coordenadas[j]																#Coordenada (x, y)
 			#print('-('+str(coordenada[0])+', '+str(coordenada[1])+')')
-			nodos=pesosCromosoma[:]														#Copia modelo
-			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, float(coordenada[0]), 0, profundidad)				#Evalua modelo
+			nodos=pesosCromosoma[:]																	#Copia modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, float(coordenada[0]), 0, profundidad)							#Evalua modelo
 			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
 			resultadosCromosoma+=[resultadoCromosoma]
-			erroresCromosoma+=[abs(float(coordenada[1])-resultadoCromosoma)]								#Calcula error absoluto
+			erroresCromosoma+=[abs(float(coordenada[1])-resultadoCromosoma)]											#Calcula error absoluto
 			#print('Errores de cromosoma: '+str(erroresCromosoma))
-		if float('inf') in erroresCromosoma:													#Evita valores infinitos
+		if float('inf') in erroresCromosoma:																#Evita valores infinitos
 			posicion=erroresCromosoma.index(float('inf'))
 			del erroresCromosoma[posicion]
-		resultados+=[resultadosCromosoma]													#Resultados de modelos
-		errores+=[erroresCromosoma]														#Errores de modelos
-		utilidades+=[sum(erroresCromosoma)]													#Utilidades de modelos
+		resultados+=[resultadosCromosoma]																#Resultados de modelos
+		errores+=[erroresCromosoma]																	#Errores de modelos
+		utilidades+=[sum(erroresCromosoma)]																#Utilidades de modelos
 	#print('\nResultados de cromosomas: ')
 	#for i in range(len(resultados)): print('-Cromosoma ', i+1, ': ', resultados[i])
 	#print('\nErrores de cromosomas: ')
 	#for i in range(len(errores)): print('-Cromosoma ', i+1, ': ', errores[i])
 	#print('\nError de cromosomas: ')
 	#for i in range(len(utilidades)): print('-Cromosoma ', i+1, ': ', utilidades[i])
-	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)		#Implementa elitismo
+	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)					#Implementa elitismo
 	aptitud=sum(utilidades)
 	#print('\nUtilidad de la poblacion: ', aptitud)
 	aptitudes=[]
@@ -329,38 +334,39 @@ def evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, p
 
 def evaluarRegresionExpresion(cromosomas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
 	#print('\n\nEvaluación de expresion')
-	pesos=codificarCromosomas(cromosomas, 9, numeros)
-	if(constante==None): constante=random.randrange(10)												#Genera constante aleatoria
-	else: constante=ceil((constante+random.randrange(constante))/2)											#Actualiza constante
+	pesos=codificarCromosomas(cromosomas, 10, numeros)
+	if(constante==None): constante=random.randrange(10)													#Genera constante aleatoria
+	else:																			#Actualiza constante
+		if(constante!=0): constante=ceil((constante+random.randrange(constante))/2)
 	#print('\nConstante: ', k)
 	resultados=[]
 	errores=[]
 	utilidades=[]
-	for i in range(len(pesos)):															#Recorre cada modelo de la población
-		pesosCromosoma=pesos[i]															#Modelo a evaluar
+	for i in range(len(pesos)):																#Recorre cada modelo de la población
+		pesosCromosoma=pesos[i]																#Modelo a evaluar
 		resultadosCromosoma=[]
 		erroresCromosoma=[]
-		x=inferiorX																#Limite inferior de variable independiente
-		while(x<=superiorX):															#Recorre rango de variable independiente															#Recorre rango de variable independiente
-			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45											#Evalua funcion
+		x=inferiorX																	#Limite inferior de variable independiente
+		while(x<=superiorX):																#Recorre rango de variable independiente															#Recorre rango de variable independiente
+			resultadoFuncion=((-2.34**3)-(-0.11*x/2))+23.45												#Evalua funcion
 			#print('\n-Resultado de funcion: '+str(resultadoFuncion))
-			nodos=pesosCromosoma[:]														#Copia modelo
-			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, x, 0, profundidad)							#Evalua modelo
+			nodos=pesosCromosoma[:]															#Copia modelo
+			resultadoCromosoma=evaluarArbolAlgebraico(nodos, constante, x, 0, profundidad)								#Evalua modelo
 			#print('-Resultado de cromosoma: '+str(resultadoCromosoma))
 			resultadosCromosoma+=[resultadoCromosoma]
-			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]									#Calcula error absoluto
+			erroresCromosoma+=[abs(resultadoFuncion-resultadoCromosoma)]										#Calcula error absoluto
 			#print('Errores de cromosoma: '+str(erroresCromosoma))
-			x=round(x+0.1, 1)														#Incrementa variable independiente
-		resultados+=[resultadosCromosoma]													#Resultados de modelos
-		errores+=[erroresCromosoma]														#Errores de modelos
-		utilidades+=[sum(erroresCromosoma)]													#Utilidades de modelos
+			x=round(x+0.1, 1)															#Incrementa variable independiente
+		resultados+=[resultadosCromosoma]														#Resultados de modelos
+		errores+=[erroresCromosoma]															#Errores de modelos
+		utilidades+=[sum(erroresCromosoma)]														#Utilidades de modelos
 	#print('\nResultados de cromosomas: ')
 	#for i in range(len(resultados)): print('-Cromosoma ', i+1, ': ', resultados[i])
 	#print('\nErrores de cromosomas: ')
 	#for i in range(len(errores)): print('-Cromosoma ', i+1, ': ', errores[i])
 	#print('\nError de cromosomas: ')
 	#for i in range(len(utilidades)): print('-Cromosoma ', i+1, ': ', utilidades[i])
-	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)		#Implementa elitismo
+	cromosomaElitista, utilidadElitistaActual=mejorar(cromosomas, utilidades, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior)			#Implementa elitismo
 	aptitud=sum(utilidades)
 	#print('\nUtilidad de la poblacion: ', aptitud)
 	aptitudes=[]
