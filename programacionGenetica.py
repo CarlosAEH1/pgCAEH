@@ -141,11 +141,17 @@ def evaluarArbolAlgebraico(nodos, k, x, nivel, profundidad):					#Recorre cromos
 		#print('Entrada: ', resultado)
 	return resultado
 
-def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior):
+def evaluarParidad(cromosomas, opcionRepresentacion, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior):
 	entradasFuncion=[[0, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 0, 1], [0, 1, 1, 0], [0, 1, 1, 1], [1, 0, 0, 0], [1, 0, 0, 1], [1, 0, 1, 0], [1, 0, 1, 1], [1, 1, 0, 0], [1, 1, 0, 1], [1, 1, 1, 0], [1, 1, 1, 1]]
 	salidasFuncion=[1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1]
 	#print('\n\nEvaluación')
-	pesos=codificarCromosomas(cromosomas, 4, numeros)
+	"""contenido=open(nombre+'.txt')
+	coordenadas=[]
+	for linea in contenido: coordenadas+=[linea.rstrip().split('\t')]																							#Obtiene coordendas de archivo TXT
+	print('\nCoordenadas')
+	for i in range(len(coordenadas)): print(coordenadas[i])"""
+	if(opcionRepresentacion==1): pesos=decodificarCromosomas(cromosomas, 4, numeros)
+	elif(opcionRepresentacion==2): pesos=cromosomas[:]
 	resultados=[]
 	errores=[]
 	utilidades=[]
@@ -181,9 +187,10 @@ def evaluarParidad(cromosomas, profundidad, numeros, opcionSeleccion, cromosomaE
 	else: aptitudes=utilidades
 	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud
 
-def evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
+def evaluarRegresionCoordenadas(cromosomas, opcionRepresentacion, coordenadas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
 	#print('\n\nEvaluación de coordenadas')
-	pesos=codificarCromosomas(cromosomas, 10, numeros)
+	if(opcionRepresentacion==1): pesos=decodificarCromosomas(cromosomas, 10, numeros)
+	elif(opcionRepresentacion==2): pesos=cromosomas[:]
 	if(constante==None): constante=random.randrange(10)																	#Genera constante aleatoria
 	else:																					#Actualiza constante
 		if(constante!=0): constante=ceil((constante+random.randrange(constante))/2)
@@ -225,9 +232,10 @@ def evaluarRegresionCoordenadas(cromosomas, coordenadas, inferiorX, superiorX, p
 	else: aptitud=utilidades
 	return aptitudes, cromosomaElitista, utilidadElitistaActual, aptitud, constante
 
-def evaluarRegresionExpresion(cromosomas, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
+def evaluarRegresionExpresion(cromosomas, opcionRepresentacion, inferiorX, superiorX, profundidad, numeros, opcionSeleccion, cromosomaElitista, utilidadElitistaAnterior, constante):
 	#print('\n\nEvaluación de expresion')
-	pesos=codificarCromosomas(cromosomas, 10, numeros)
+	if(opcionRepresentacion==1): pesos=decodificarCromosomas(cromosomas, 10, numeros)
+	elif(opcionRepresentacion==2): pesos=cromosomas[:]
 	if(constante==None): constante=random.randrange(10)													#Genera constante aleatoria
 	else:																			#Actualiza constante
 		if(constante!=0): constante=ceil((constante+random.randrange(constante))/2)
